@@ -1,0 +1,254 @@
+name: Advanced Testing Suite
+
+on:
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual triggering
+  push:
+    branches: [ main ]
+    paths:
+      - 'api/**'
+      - 'tests/performance/**'
+      - 'tests/e2e/**'
+
+jobs:
+  performance-benchmarks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🐍 Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+    
+    - name: 📦 Install Pixi
+      uses: prefix-dev/setup-pixi@v0.8.1
+      with:
+        pixi-version: v0.28.2
+        cache: true
+    
+    - name: 🔧 Install dependencies
+      run: pixi install
+    
+    - name: ⚡ Run Performance Benchmarks
+      run: |
+        echo "🚀 Starting performance benchmarks..."
+        pixi run test-perf
+    
+    - name: 📊 Generate Performance Report
+      run: |
+        echo "📈 Performance Benchmark Results" > performance-report.md
+        echo "=================================" >> performance-report.md
+        echo "" >> performance-report.md
+        echo "**Test Date**: $(date)" >> performance-report.md
+        echo "**Python Version**: 3.13" >> performance-report.md
+        echo "**Environment**: GitHub Actions Ubuntu" >> performance-report.md
+        echo "" >> performance-report.md
+        echo "## Results Summary" >> performance-report.md
+        echo "- ✅ Performance tests completed" >> performance-report.md
+        echo "- 📊 Detailed results in test artifacts" >> performance-report.md
+    
+    - name: 📋 Upload Performance Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-benchmarks
+        path: |
+          performance-report.md
+          htmlcov/
+          .pytest_cache/
+
+  load-testing:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 📦 Install Pixi
+      uses: prefix-dev/setup-pixi@v0.8.1
+      with:
+        pixi-version: v0.28.2
+        cache: true
+    
+    - name: 🔧 Install dependencies
+      run: pixi install
+    
+    - name: 🚀 Start API Server
+      run: |
+        pixi run dev &
+        sleep 15  # Wait for server to fully start
+        echo "API_PID=$!" >> $GITHUB_ENV
+    
+    - name: 🔥 Load Testing with curl
+      run: |
+        echo "🔥 Starting load tests..."
+        
+        # Test basic endpoints under load
+        for i in {1..50}; do
+          curl -s http://localhost:8000/health > /dev/null &
+          curl -s http://localhost:8000/stats > /dev/null &
+          
+          # Test search endpoints
+          curl -s -X POST http://localhost:8000/search/similarity \
+            -H "Content-Type: application/json" \
+            -d '{"query": "test query '$i'", "n_results": 3}' > /dev/null &
+          
+          if (( i % 10 == 0 )); then
+            echo "Completed $i requests..."
+            wait  # Wait for batch to complete
+          fi
+        done
+        
+        wait  # Wait for all remaining requests
+        echo "✅ Load testing completed!"
+    
+    - name: 🧪 Concurrent User Simulation
+      run: |
+        echo "👥 Simulating concurrent users..."
+        
+        # Function to simulate user session
+        simulate_user() {
+          local user_id=$1
+          echo "User $user_id: Starting session"
+          
+          # Health check
+          curl -s http://localhost:8000/health > /dev/null
+          
+          # Search for Python developers
+          curl -s -X POST http://localhost:8000/search/similarity \
+            -H "Content-Type: application/json" \
+            -d '{"query": "Python developer", "n_results": 5}' > /dev/null
+          
+          # Filter search
+          curl -s "http://localhost:8000/search/filter?department=Engineering" > /dev/null
+          
+          # Advanced search
+          curl -s -X POST http://localhost:8000/search/advanced \
+            -H "Content-Type: application/json" \
+            -d '{"query": "senior engineer", "filters": {"department": "Engineering"}, "n_results": 3}' > /dev/null
+          
+          echo "User $user_id: Session completed"
+        }
+        
+        # Simulate 10 concurrent users
+        for i in {1..10}; do
+          simulate_user $i &
+        done
+        
+        wait
+        echo "✅ Concurrent user simulation completed!"
+    
+    - name: 🏥 Final Health Check
+      run: |
+        pixi run health
+        echo "✅ API still healthy after load testing!"
+
+  database-testing:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 📦 Install Pixi
+      uses: prefix-dev/setup-pixi@v0.8.1
+      with:
+        pixi-version: v0.28.2
+        cache: true
+    
+    - name: 🔧 Install dependencies
+      run: pixi install
+    
+    - name: 🗄️ Test ChromaDB Operations
+      run: |
+        echo "🧪 Testing ChromaDB operations..."
+        
+        # Run integration tests specifically focused on database
+        pixi run test-integration
+        
+        echo "✅ Database operations tested successfully!"
+    
+    - name: 📊 Database Performance
+      run: |
+        echo "📊 Testing database performance..."
+        
+        # Start API to populate database
+        pixi run dev &
+        sleep 10
+        
+        # Test database operations
+        time curl -s -X POST http://localhost:8000/search/similarity \
+          -H "Content-Type: application/json" \
+          -d '{"query": "database performance test", "n_results": 10}'
+        
+        echo "✅ Database performance test completed!"
+
+  cross-platform-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.13"]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🐍 Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: 📦 Install Pixi
+      uses: prefix-dev/setup-pixi@v0.8.1
+      with:
+        pixi-version: v0.28.2
+        cache: true
+    
+    - name: 🔧 Install dependencies
+      run: pixi install
+    
+    - name: 🧪 Run Core Tests
+      run: |
+        echo "Testing on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
+        pixi run test-unit
+        pixi run test-basic
+    
+    - name: 📋 Platform Summary
+      run: |
+        echo "✅ Tests passed on:"
+        echo "  - OS: ${{ matrix.os }}"
+        echo "  - Python: ${{ matrix.python-version }}"
+        echo "  - Platform: $(uname -a || echo 'Windows')"
+
+  notify-results:
+    runs-on: ubuntu-latest
+    needs: [performance-benchmarks, load-testing, database-testing, cross-platform-test]
+    if: always()
+    
+    steps:
+    - name: 📊 Test Results Summary
+      run: |
+        echo "🎯 Advanced Testing Results Summary"
+        echo "=================================="
+        echo ""
+        echo "📊 Performance Benchmarks: ${{ needs.performance-benchmarks.result }}"
+        echo "🔥 Load Testing: ${{ needs.load-testing.result }}"
+        echo "🗄️ Database Testing: ${{ needs.database-testing.result }}"
+        echo "🔄 Cross-Platform Testing: ${{ needs.cross-platform-test.result }}"
+        echo ""
+        
+        if [[ "${{ needs.performance-benchmarks.result }}" == "success" && \
+              "${{ needs.load-testing.result }}" == "success" && \
+              "${{ needs.database-testing.result }}" == "success" && \
+              "${{ needs.cross-platform-test.result }}" == "success" ]]; then
+          echo "🎉 All advanced tests passed!"
+          echo "🚀 System is production-ready!"
+        else
+          echo "⚠️ Some advanced tests failed - check individual job results"
+        fi

@@ -1,0 +1,36 @@
+name: Update Status Badges
+
+on:
+  workflow_run:
+    workflows: 
+      - "CI - Comprehensive Test Suite"
+      - "Advanced Testing Suite" 
+    types:
+      - completed
+
+jobs:
+  update-badges:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: 🏷️ Update Status Badges
+      run: |
+        echo "🏷️ Status badges would be updated here..."
+        echo ""
+        echo "Available badges:"
+        echo "  - CI Status: https://github.com/${{ github.repository }}/workflows/CI%20-%20Comprehensive%20Test%20Suite/badge.svg"
+        echo "  - Advanced Tests: https://github.com/${{ github.repository }}/workflows/Advanced%20Testing%20Suite/badge.svg"  
+        echo "  - Deployment: https://github.com/${{ github.repository }}/workflows/Deploy%20to%20Production/badge.svg"
+        echo ""
+        echo "📊 Add these to your README.md:"
+        echo ""
+        echo '[![CI Status](https://github.com/${{ github.repository }}/workflows/CI%20-%20Comprehensive%20Test%20Suite/badge.svg)](https://github.com/${{ github.repository }}/actions)'
+        echo '[![Advanced Tests](https://github.com/${{ github.repository }}/workflows/Advanced%20Testing%20Suite/badge.svg)](https://github.com/${{ github.repository }}/actions)'
+        echo '[![Deploy](https://github.com/${{ github.repository }}/workflows/Deploy%20to%20Production/badge.svg)](https://github.com/${{ github.repository }}/actions)'
+        echo ""
+        echo "✅ Badge information generated!"
