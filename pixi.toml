@@ -6,8 +6,29 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
+# Original script
+run = "python script.py"
+
+# Book exercises
+books = "python exercises/books_advanced_search.py"
+books-solution = "python exercises/books_advanced_search_solution.py"
+books-bonus = "python exercises/books_bonus_features.py"
+
+# FastAPI server tasks
+serve = "python api/main.py"
+dev = "uvicorn api.main:app --reload --host 0.0.0.0 --port 8000"
+prod = "uvicorn api.main:app --host 0.0.0.0 --port 8000 --workers 4"
+
+# Utility tasks
+install = "pixi install"
+health = "curl -s http://localhost:8000/health | python -m json.tool"
+test-api = "curl -s http://localhost:8000/docs"
 
 [dependencies]
-chromadb = "*"
-sentence-transformers = "*"
+chromadb = ">=0.4.0"
+sentence-transformers = ">=2.2.0"
+fastapi = ">=0.104.0"
+uvicorn = ">=0.24.0"
+pydantic = ">=2.0.0"
+python-multipart = ">=0.0.6"
 pyarrow = ">=14.0.0"

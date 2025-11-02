@@ -1,11 +1,46 @@
 # API Reference and Implementation Guide
 
 ## Table of Contents
-1. [ChromaDB API Reference](#chromadb-api-reference)
-2. [SentenceTransformers API](#sentencetransformers-api)
-3. [Custom Extensions](#custom-extensions)
-4. [Integration Patterns](#integration-patterns)
-5. [Testing Framework](#testing-framework)
+1. [HTML Frontend Dashboard](#html-frontend-dashboard)
+2. [FastAPI Web Service](#fastapi-web-service)
+3. [ChromaDB API Reference](#chromadb-api-reference)
+4. [SentenceTransformers API](#sentencetransformers-api)
+5. [Custom Extensions](#custom-extensions)
+6. [Integration Patterns](#integration-patterns)
+7. [Testing Framework](#testing-framework)
+
+---
+
+## HTML Frontend Dashboard
+
+### Quick Access
+The easiest way to use the similarity search system is through the HTML dashboard:
+
+```bash
+# Start the API server
+pixi run dev
+
+# Open the dashboard
+xdg-open frontend/index.html
+```
+
+### Dashboard Features
+- **🎯 Similarity Search**: Natural language queries with semantic understanding
+- **🔍 Filter Search**: Precise metadata filtering (department, experience, location)
+- **⚡ Advanced Search**: Combines semantic search with metadata filters
+- **📊 Visual Results**: Employee cards with similarity scores and details
+- **🔄 Real-time**: Instant search with loading states and error handling
+
+### Browser Requirements
+- Modern browser with JavaScript enabled
+- Local file access (works with file:// URLs)
+- Network access to localhost:8000 (FastAPI server)
+
+---
+
+## FastAPI Web Service
+
+The HTML dashboard connects to a FastAPI backend that provides REST endpoints.
 
 ---
 

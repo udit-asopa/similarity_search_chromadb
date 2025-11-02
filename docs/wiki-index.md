@@ -215,6 +215,54 @@ This project is open source under the MIT License. It builds on excellent open s
 
 ---
 
+# Wiki and Documentation Index
+
+Welcome to the comprehensive documentation for the Employee Similarity Search system using ChromaDB and SentenceTransformers.
+
+## 🚀 Quick Navigation
+
+### New Users Start Here
+1. **[README.md](../README.md)** - Essential setup and quick start (5 minutes)
+2. **[Examples](examples.md)** - Try the HTML dashboard with sample queries
+3. **[Features Guide](features.md)** - Understand what the system can do
+
+### Developers and Advanced Users  
+4. **[Developer Guide](developer-guide.md)** - Development setup, customization, deployment
+5. **[API Reference](api-reference.md)** - Complete API documentation and integration
+6. **[Code Structure](code-structure.md)** - Architecture and implementation details
+7. **[Concepts](concepts.md)** - Vector embeddings and similarity search theory
+
+---
+
+## 📚 Documentation by Purpose
+
+### 🎯 **For End Users**
+- **[Quick Start](../README.md#quick-start)** - Get up and running in 3 minutes
+- **[HTML Dashboard Usage](examples.md#html-dashboard-usage-examples)** - Web interface guide
+- **[Search Examples](features.md#search-capabilities)** - Natural language query examples
+- **[Feature Overview](features.md#complete-feature-overview)** - What you can accomplish
+
+### 🛠️ **For Developers**  
+- **[Development Setup](developer-guide.md#development-setup)** - Environment and tools
+- **[Architecture Overview](developer-guide.md#architecture-overview)** - System design
+- **[Customization Guide](developer-guide.md#customization-guide)** - Extend functionality
+- **[Testing & Debugging](developer-guide.md#testing)** - Quality assurance
+- **[Deployment](developer-guide.md#deployment)** - Production deployment
+
+### 🏢 **For System Administrators**
+- **[Performance Tuning](developer-guide.md#performance-optimization)** - Optimize for scale
+- **[Security Considerations](developer-guide.md#security-considerations)** - Secure deployments  
+- **[Monitoring](developer-guide.md#monitoring-and-analytics)** - Health and analytics
+- **[Troubleshooting](../README.md#troubleshooting)** - Common issues and solutions
+
+### 🎓 **For Learning**
+- **[Vector Embeddings](concepts.md#vector-embeddings-fundamentals)** - Core technology concepts
+- **[ChromaDB Deep Dive](concepts.md#chromadb-architecture)** - Database internals
+- **[SentenceTransformers](concepts.md#sentencetransformers-models)** - Embedding models
+- **[Similarity Metrics](concepts.md#similarity-metrics-comparison)** - Distance calculations
+
+---
+
 **Ready to get started?** Begin with the [README.md](../README.md) for installation and basic usage, then explore the detailed documentation based on your role and experience level.
 
 **Have questions?** Check the relevant documentation section or browse the comprehensive examples provided throughout this wiki.

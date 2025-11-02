@@ -707,3 +707,86 @@ def memory_efficient_search(collection, query, batch_size=1000):
 ---
 
 This comprehensive guide should help you understand and implement various patterns with the ChromaDB similarity search system!
+
+# HTML Dashboard Usage Examples
+
+## Getting Started with the Web Interface
+
+### 1. Setup and Launch
+```bash
+# Start the FastAPI server
+pixi run dev
+
+# Open the HTML dashboard in your browser
+xdg-open frontend/index.html
+```
+
+### 2. Similarity Search Examples
+
+**Tab: 🎯 Similarity Search**
+
+Try these natural language queries:
+
+- **"Python developer with web experience"**
+  - Finds: John Doe (Software Engineer), Alex Rodriguez (Lead Software Engineer)
+  - Shows semantic understanding of programming skills
+
+- **"team leader with management experience"**
+  - Finds: David Lee (Engineering Manager), Rachel Brown (Marketing Director)
+  - Identifies leadership roles across departments
+
+- **"marketing professional with social media skills"**
+  - Finds: Jane Smith (Marketing Manager), Emily Wilson (Marketing Assistant)
+  - Matches domain expertise and specific skills
+
+### 3. Filter Search Examples
+
+**Tab: 🔍 Filter Search**
+
+Use precise criteria to filter employees:
+
+- **Engineering Department + 5+ Years Experience:**
+  - Department: "Engineering"
+  - Min Experience: 5
+  - Results: Senior engineers and architects
+
+- **California Employees:**
+  - Location: "San Francisco" or "Los Angeles"
+  - Shows geographic filtering
+
+- **Part-time Employees:**
+  - Employment Type: "Part-time"
+  - Filters by work arrangement
+
+### 4. Advanced Search Examples
+
+**Tab: ⚡ Advanced Search**
+
+Combine semantic search with filters:
+
+- **"senior developer" + Engineering + 8+ years:**
+  - Query: "senior developer with architecture experience"
+  - Department: "Engineering"
+  - Min Experience: 8
+  - Finds: Michael Brown, Chris Evans, Alex Rodriguez
+
+- **"marketing manager" + California:**
+  - Query: "marketing manager with leadership skills"
+  - Location: "Los Angeles"
+  - Finds: Jane Smith and similar profiles
+
+### 5. Understanding Results
+
+Each result card shows:
+- **Employee name and role**
+- **Match score** (higher = better match)
+- **Department, experience, location**
+- **Full description** with skills and background
+- **Hover effects** for better interaction
+
+### 6. Pro Tips
+
+- **Use descriptive queries** - "Python web developer" works better than just "Python"
+- **Combine filters wisely** - Don't over-constrain your search
+- **Check similarity scores** - Scores below 0.5 indicate very good matches
+- **Try different phrasings** - "team lead" vs "manager" vs "supervisor"

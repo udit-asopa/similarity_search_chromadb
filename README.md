@@ -7,30 +7,46 @@ A comprehensive Python application demonstrating semantic similarity search and 
 This project showcases how to build a powerful employee search system that combines:
 - **Semantic similarity search** using natural language queries
 - **Metadata filtering** for precise results
-- **Combined search capabilities** for advanced filtering
-- **Vector embeddings** for understanding context and meaning
 
-## 🚀 Features
+## 🚀 Quick Start
 
-### Core Capabilities
-- ✨ **Natural Language Search**: Find employees using conversational queries like "Python developer with web experience"
-- 🔍 **Metadata Filtering**: Filter by department, experience level, location, and employment type
-- 🎯 **Combined Search**: Merge semantic search with metadata filters for precise results
-- 📊 **Similarity Scoring**: Get relevance scores to understand match quality
-- 🛡️ **Error Handling**: Robust error handling for edge cases and empty results
+### 🎯 **3-Minute Setup**
 
-### Search Examples
-1. **Skill-based Search**: "Python developer with web development experience"
-2. **Role-based Search**: "team leader manager with experience"
-3. **Department Filtering**: Find all Engineering employees
-4. **Experience Filtering**: Employees with 10+ years experience
-5. **Location Filtering**: Employees in California
-6. **Advanced Combined**: Senior Python developers in tech cities with 8+ years experience
+1. **Clone and install:**
+```bash
+git clone <repository-url>
+cd sim_search_chromadb
+pixi install
+```
+
+2. **Start the server:**
+```bash
+pixi run dev
+```
+
+3. **Open the dashboard:**
+```bash
+xdg-open frontend/index.html
+```
+
+4. **Try your first search:**
+   - Click "🎯 Similarity Search" tab
+   - Enter: "Python developer with web experience"
+   - Click "🔍 Search Similar Employees"
+   - See instant results with similarity scores!
+
+### Why Use the HTML Dashboard?
+- User-friendly interface - no coding required
+- Real-time search with instant results
+- Visual employee cards with similarity scores
+- Multiple search modes in one interface
 
 ## 🛠️ Technology Stack
 
 - **ChromaDB**: Vector database for similarity search
 - **SentenceTransformers**: Embedding model (`all-MiniLM-L6-v2`)
+- **FastAPI**: Modern web API framework for backend
+- **HTML/CSS/JavaScript**: Interactive web dashboard
 - **Python 3.8+**: Core programming language
 - **Pixi**: Package and environment management
 
@@ -53,8 +69,21 @@ cd sim_search_chromadb
 pixi install
 ```
 
-3. **Run the application**
+3. **Start the FastAPI server**
 ```bash
+pixi run dev
+```
+
+4. **Open the Web Dashboard**
+```bash
+# Open the interactive HTML dashboard
+xdg-open frontend/index.html
+# or navigate to frontend/index.html in your file manager
+```
+
+### Alternative: Command Line Usage
+```bash
+# Run the original script (command-line only)
 pixi run python script.py
 ```
 
@@ -62,24 +91,57 @@ pixi run python script.py
 
 ```
 sim_search_chromadb/
-├── script.py              # Main application script
+├── script.py              # Original CLI application
 ├── README.md              # This file
 ├── pixi.toml             # Pixi configuration
 ├── pixi.lock             # Dependency lock file
+├── api/                  # FastAPI web service
+│   └── main.py          # FastAPI application
+├── frontend/             # Web dashboard
+│   └── index.html       # Interactive HTML interface
+├── exercises/            # Practice exercises
+│   ├── books_advanced_search.py
+│   ├── books_advanced_search_solution.py
+│   └── books_bonus_features.py
 └── docs/                 # Documentation folder
     ├── concepts.md       # Core concepts explained
     ├── code-structure.md # Code architecture
-    └── examples.md       # Usage examples
+    ├── examples.md       # Usage examples
+    └── api-reference.md  # API documentation
 ```
 
 ## 📋 Usage
 
-### Basic Usage
+### Web Dashboard (Recommended)
 
-Run the complete demonstration:
+1. **Start the API server:**
+```bash
+pixi run dev
+```
+
+2. **Open the interactive web dashboard:**
+```bash
+# Open the HTML dashboard in your browser
+xdg-open frontend/index.html
+```
+
+3. **Use the three search modes:**
+   - **🎯 Similarity Search**: Natural language queries like "Python developer with web experience"
+   - **🔍 Filter Search**: Precise filtering by department, experience, location, etc.
+   - **⚡ Advanced Search**: Combine semantic search with metadata filters
+
+### Command Line Usage
+
+Run the original CLI demonstration:
 ```bash
 pixi run python script.py
 ```
+
+### API Endpoints
+
+Access the auto-generated API documentation:
+- **Interactive docs**: http://localhost:8000/docs
+- **Alternative docs**: http://localhost:8000/redoc
 
 ### Code Structure
 
@@ -98,6 +160,14 @@ The application consists of two main functions:
 - Performs combined search operations
 - Handles edge cases and error scenarios
 
+## 📚 Documentation
+
+- **[Features Guide](docs/features.md)** - Complete feature overview and capabilities
+- **[Usage Examples](docs/examples.md)** - HTML dashboard and search examples
+- **[Developer Guide](docs/developer-guide.md)** - Development, customization, deployment
+- **[API Reference](docs/api-reference.md)** - Complete API documentation
+- **[Wiki Index](docs/wiki-index.md)** - Complete navigation guide
+
 ### Employee Data Structure
 
 Each employee record contains:
@@ -114,91 +184,24 @@ Each employee record contains:
 }
 ```
 
-### Generated Documents
+## 🔧 Available Tasks
 
-Rich text descriptions are created for similarity search:
+```bash
+# Web interface
+pixi run dev          # Start development server
+pixi run prod         # Production server
+
+# Command line
+pixi run run          # Original CLI script
+
+# Exercises
+pixi run books        # Book search exercises
+pixi run books-solution
+pixi run books-bonus
+
+# Utilities
+pixi run health       # Check API health
 ```
-"Software Engineer with 5 years of experience in Engineering. 
-Skills: Python, JavaScript, React, Node.js, databases. 
-Located in New York. Employment type: Full-time."
-```
-
-## 🔧 Configuration
-
-### ChromaDB Collection Setup
-```python
-collection = client.create_collection(
-    name="employee_collection",
-    metadata={"description": "A collection for storing employee data"},
-    configuration={
-        "hnsw": {"space": "cosine"},
-        "embedding_function": ef
-    }
-)
-```
-
-### Embedding Function
-```python
-ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="all-MiniLM-L6-v2"
-)
-```
-
-## 📊 Example Outputs
-
-### Similarity Search Results
-```
-=== Similarity Search Examples ===
-
-1. Searching for Python developers:
-Query: 'Python developer with web development experience'
-  1. John Doe (employee_1) - Distance: 0.3245
-     Role: Software Engineer, Department: Engineering
-     Document: Software Engineer with 5 years of experience in Engineering...
-```
-
-### Metadata Filtering Results
-```
-=== Metadata Filtering Examples ===
-
-3. Finding all Engineering employees:
-Found 9 Engineering employees:
-  - John Doe: Software Engineer (5 years)
-  - Michael Brown: Senior Software Engineer (12 years)
-  - David Lee: Engineering Manager (15 years)
-```
-
-## 🎓 Key Concepts
-
-### Vector Embeddings
-- Converts text into numerical vectors that capture semantic meaning
-- Similar concepts have similar vector representations
-- Enables "understanding" of context beyond keyword matching
-
-### Cosine Similarity
-- Measures similarity between vectors using cosine of the angle
-- Values range from 0 (identical) to 2 (completely different)
-- Lower distances indicate higher similarity
-
-### HNSW (Hierarchical Navigable Small World)
-- Efficient algorithm for approximate nearest neighbor search
-- Provides fast similarity search on large datasets
-- Configurable for different distance metrics (cosine, euclidean, etc.)
-
-## 🔍 Advanced Features
-
-### Query Types Supported
-- **Text Similarity**: Natural language queries
-- **Metadata Exact Match**: `{"department": "Engineering"}`
-- **Metadata Range**: `{"experience": {"$gte": 10}}`
-- **Metadata Array**: `{"location": {"$in": ["San Francisco", "New York"]}}`
-- **Complex Logic**: `{"$and": [condition1, condition2]}`
-
-### Error Handling
-- Empty result detection
-- Invalid query handling
-- Collection creation errors
-- Embedding generation failures
 
 ## 🐛 Troubleshooting
 
