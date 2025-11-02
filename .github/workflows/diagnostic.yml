@@ -1,0 +1,170 @@
+name: Diagnostic - CI Troubleshooting
+
+on:
+  workflow_dispatch:  # Manual trigger only
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 📋 Environment Information
+      run: |
+        echo "🖥️ System Information"
+        echo "==================="
+        uname -a
+        echo ""
+        echo "🐍 Python Information"
+        echo "==================="
+        which python3
+        python3 --version
+        echo ""
+        echo "📦 Package Managers"
+        echo "=================="
+        which pip || echo "pip not found"
+        which conda || echo "conda not found"
+        echo ""
+        
+    - name: 📂 Project Structure Analysis
+      run: |
+        echo "📂 Project Root Contents"
+        echo "======================="
+        ls -la
+        echo ""
+        echo "📄 Key Files Check"
+        echo "=================="
+        [ -f pixi.toml ] && echo "✅ pixi.toml exists" || echo "❌ pixi.toml missing"
+        [ -f README.md ] && echo "✅ README.md exists" || echo "❌ README.md missing"
+        [ -d api ] && echo "✅ api/ directory exists" || echo "❌ api/ directory missing"
+        [ -d tests ] && echo "✅ tests/ directory exists" || echo "❌ tests/ directory missing"
+        [ -d .github/workflows ] && echo "✅ workflows/ directory exists" || echo "❌ workflows/ directory missing"
+        echo ""
+        echo "📋 Workflow Files"
+        echo "================"
+        ls -la .github/workflows/ || echo "No workflows directory"
+    
+    - name: 🔧 Pixi Installation Test
+      run: |
+        echo "📦 Installing Pixi..."
+        curl -fsSL https://pixi.sh/install.sh | bash
+        export PATH="$HOME/.pixi/bin:$PATH"
+        
+        echo "🔍 Pixi Version Check"
+        pixi --version || echo "❌ Pixi installation failed"
+        
+        echo "📋 Pixi Project Info"
+        if [ -f pixi.toml ]; then
+          pixi info || echo "⚠️ Pixi info failed"
+        else
+          echo "❌ pixi.toml not found - cannot run pixi commands"
+        fi
+    
+    - name: 📦 Direct Dependency Check
+      run: |
+        echo "🐍 Direct Python Package Installation"
+        echo "===================================="
+        
+        # Try installing key packages directly
+        pip install --user pytest fastapi uvicorn pydantic || echo "⚠️ Some packages failed to install"
+        
+        echo ""
+        echo "✅ Installed packages:"
+        pip list --user
+        
+        echo ""
+        echo "🧪 Import Test"
+        python3 -c "
+        packages = ['pytest', 'fastapi', 'pydantic', 'uvicorn']
+        for pkg in packages:
+            try:
+                __import__(pkg)
+                print(f'✅ {pkg}: Import successful')
+            except ImportError as e:
+                print(f'❌ {pkg}: Import failed - {e}')
+        "
+    
+    - name: 🧪 Simple Test Execution
+      run: |
+        echo "🧪 Simple Test Execution"
+        echo "======================="
+        
+        if [ -d tests ]; then
+          echo "📁 Tests directory found"
+          echo "Test files:"
+          find tests -name "*.py" | head -5
+          
+          echo ""
+          echo "🔍 Trying to run a simple test..."
+          
+          # Try to run the most basic test
+          if [ -f tests/unit/test_basic.py ]; then
+            echo "Running test_basic.py..."
+            python3 -m pytest tests/unit/test_basic.py -v --tb=short || echo "⚠️ Basic test failed"
+          elif [ -f tests/test_setup.py ]; then
+            echo "Running test_setup.py..."
+            python3 -m pytest tests/test_setup.py -v --tb=short || echo "⚠️ Setup test failed"
+          else
+            echo "📋 Available test files:"
+            find tests -name "test_*.py" | head -3
+          fi
+        else
+          echo "❌ No tests directory found"
+        fi
+    
+    - name: 🔍 Error Analysis
+      run: |
+        echo "🔍 Common CI Issues Analysis"
+        echo "============================"
+        
+        echo "1. 📦 Dependency Issues:"
+        echo "   - Check if all required packages are in pixi.toml"
+        echo "   - Verify Python version compatibility"
+        echo ""
+        
+        echo "2. 🔧 Path Issues:"
+        echo "   - PYTHONPATH configuration"
+        echo "   - Module import paths"
+        echo "   - Current working directory"
+        pwd
+        echo "   Python path:"
+        python3 -c "import sys; print('\n'.join(sys.path))"
+        echo ""
+        
+        echo "3. 🎯 Environment Variables:"
+        env | grep -E "(PYTHON|PATH|PIXI)" || echo "No relevant env vars found"
+        echo ""
+        
+        echo "4. 📋 Recommendations:"
+        echo "   ✅ Start with basic-ci.yml workflow (most reliable)"
+        echo "   ✅ Fix dependency issues before advanced testing"
+        echo "   ✅ Use continue-on-error: true for unstable tests"
+        echo "   ✅ Test locally with 'pixi run test-unit' first"
+    
+    - name: 📋 Diagnostic Summary
+      run: |
+        echo ""
+        echo "🎯 DIAGNOSTIC SUMMARY"
+        echo "===================="
+        echo ""
+        echo "This workflow helps identify why CI is failing."
+        echo ""
+        echo "📋 Check the logs above for:"
+        echo "   - ❌ Missing files or directories"
+        echo "   - ❌ Package installation failures" 
+        echo "   - ❌ Import errors"
+        echo "   - ❌ Path configuration issues"
+        echo ""
+        echo "🚀 Recommended next steps:"
+        echo "   1. Fix any ❌ issues found above"
+        echo "   2. Test changes locally first"
+        echo "   3. Use basic-ci.yml for initial setup"
+        echo "   4. Gradually enable advanced workflows"
+        echo ""
+        echo "✅ Diagnostic workflow completed!"
