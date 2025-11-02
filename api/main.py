@@ -228,7 +228,7 @@ def build_metadata_filter(filters: Optional[MetadataFilter]) -> Optional[Dict[st
     
     conditions = []
     
-    if filters.department:
+    if filters.department and filters.department.strip():
         conditions.append({"department": filters.department})
     
     # Handle experience filtering with proper edge case handling
@@ -250,10 +250,10 @@ def build_metadata_filter(filters: Optional[MetadataFilter]) -> Optional[Dict[st
     elif filters.experience_max is not None and filters.experience_max > 0:
         conditions.append({"experience": {"$lte": filters.experience_max}})
     
-    if filters.location:
+    if filters.location and filters.location.strip():
         conditions.append({"location": filters.location})
     
-    if filters.employment_type:
+    if filters.employment_type and filters.employment_type.strip():
         conditions.append({"employment_type": filters.employment_type})
     
     if len(conditions) == 0:

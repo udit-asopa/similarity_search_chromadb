@@ -1,0 +1,30 @@
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=api",
+    "--cov=exercises", 
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+]
+testpaths = ["tests"]
+pythonpath = ["."]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests - fast, isolated tests",
+    "integration: Integration tests - test component interactions", 
+    "api: API tests - test HTTP endpoints",
+    "e2e: End-to-end tests - test complete workflows",
+    "performance: Performance tests - benchmark system performance",
+    "slow: Slow tests - tests that take longer to run",
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+asyncio_mode = "auto"

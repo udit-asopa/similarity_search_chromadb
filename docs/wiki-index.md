@@ -246,6 +246,7 @@ Welcome to the comprehensive documentation for the Employee Similarity Search sy
 - **[Development Setup](developer-guide.md#development-setup)** - Environment and tools
 - **[Architecture Overview](developer-guide.md#architecture-overview)** - System design
 - **[Customization Guide](developer-guide.md#customization-guide)** - Extend functionality
+- **[Testing Guide](testing-guide.md)** - Comprehensive test suite and strategy
 - **[Testing & Debugging](developer-guide.md#testing)** - Quality assurance
 - **[Deployment](developer-guide.md#deployment)** - Production deployment
 

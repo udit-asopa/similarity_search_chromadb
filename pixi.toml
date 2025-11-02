@@ -24,6 +24,18 @@ install = "pixi install"
 health = "curl -s http://localhost:8000/health | python -m json.tool"
 test-api = "curl -s http://localhost:8000/docs"
 
+# Test tasks
+test = { cmd = "pytest tests/ -v", env = { PYTHONPATH = "." } }
+test-cov = { cmd = "pytest tests/ -v --cov=api --cov=exercises --cov-report=html --cov-report=term", env = { PYTHONPATH = "." } }
+test-unit = { cmd = "pytest tests/unit/ -v", env = { PYTHONPATH = "." } }
+test-integration = { cmd = "pytest tests/integration/ -v", env = { PYTHONPATH = "." } }
+test-api-tests = { cmd = "pytest tests/api/ -v", env = { PYTHONPATH = "." } }
+test-e2e = { cmd = "pytest tests/e2e/ -v", env = { PYTHONPATH = "." } }
+test-perf = { cmd = "pytest tests/performance/ -v --benchmark-only", env = { PYTHONPATH = "." } }
+test-watch = { cmd = "pytest tests/ -v --watch", env = { PYTHONPATH = "." } }
+test-basic = { cmd = "pytest tests/unit/test_basic.py tests/test_setup.py -v", env = { PYTHONPATH = "." } }
+run-tests = "bash run_tests.sh"
+
 [dependencies]
 chromadb = ">=0.4.0"
 sentence-transformers = ">=2.2.0"
@@ -31,4 +43,12 @@ fastapi = ">=0.104.0"
 uvicorn = ">=0.24.0"
 pydantic = ">=2.0.0"
 python-multipart = ">=0.0.6"
-pyarrow = ">=14.0.0"
+
+# Test dependencies  
+pytest = ">=7.4.0"
+pytest-asyncio = ">=0.21.0"
+pytest-cov = ">=4.1.0"
+httpx = ">=0.24.0"
+pytest-mock = ">=3.11.0"
+faker = ">=19.0.0"
+psutil = ">=5.9.0"
