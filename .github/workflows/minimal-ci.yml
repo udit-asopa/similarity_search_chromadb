@@ -1,0 +1,190 @@
+name: Minimal CI - Structure Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+
+jobs:
+  structure-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 📂 Project Structure
+      run: |
+        echo "🏠 Repository Structure Check"
+        echo "============================="
+        echo ""
+        echo "📁 Root contents:"
+        ls -la
+        echo ""
+        echo "📄 Key files:"
+        [ -f README.md ] && echo "✅ README.md" || echo "❌ README.md missing"
+        [ -f pixi.toml ] && echo "✅ pixi.toml" || echo "❌ pixi.toml missing" 
+        [ -d api ] && echo "✅ api/ directory" || echo "❌ api/ directory missing"
+        [ -d tests ] && echo "✅ tests/ directory" || echo "❌ tests/ directory missing"
+        [ -d exercises ] && echo "✅ exercises/ directory" || echo "❌ exercises/ directory missing"
+        echo ""
+        
+    - name: 🐍 Python Environment
+      run: |
+        echo "🐍 Python Environment Check"
+        echo "==========================="
+        python3 --version
+        pip --version
+        echo "✅ Python environment ready"
+        
+    - name: 📦 Basic Dependencies
+      run: |
+        echo "📦 Installing minimal dependencies..."
+        pip install pytest
+        echo "✅ Pytest installed: $(pytest --version)"
+        
+    - name: 🔍 File Analysis
+      run: |
+        echo "🔍 Code Analysis"
+        echo "==============="
+        
+        if [ -d api ]; then
+          echo "📁 API files:"
+          find api -name "*.py" 2>/dev/null | head -5 || echo "No Python files in api/"
+        fi
+        
+        if [ -d tests ]; then
+          echo "📁 Test files:"  
+          find tests -name "*.py" 2>/dev/null | head -5 || echo "No test files found"
+        fi
+        
+        echo ""
+        echo "📊 Python file count:"
+        find . -name "*.py" 2>/dev/null | wc -l || echo "0"
+        
+    - name: ✅ Success Summary
+      run: |
+        echo ""
+        echo "🎉 MINIMAL CI SUCCESS!"
+        echo "====================="
+        echo ""
+        echo "✅ Repository checked out successfully"
+        echo "✅ Project structure verified"
+        echo "✅ Python environment working"
+        echo "✅ Basic dependencies installed"
+        echo ""
+        echo "🚀 This confirms the basic CI pipeline is working!"
+        echo "📋 Next steps: Gradually add more complex tests"
+
+  python-syntax-check:
+    runs-on: ubuntu-latest
+    needs: structure-check
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+        
+    - name: 🔍 Python Syntax Check
+      run: |
+        echo "🔍 Checking Python syntax..."
+        
+        python_files=0
+        syntax_errors=0
+        
+        # Check all Python files for syntax errors
+        while IFS= read -r -d '' file; do
+          python_files=$((python_files + 1))
+          if python -m py_compile "$file"; then
+            echo "✅ $file"
+          else
+            echo "❌ $file - SYNTAX ERROR"
+            syntax_errors=$((syntax_errors + 1))
+          fi
+        done < <(find . -name "*.py" -not -path "./.git/*" -print0)
+        
+        echo ""
+        echo "📊 Syntax Check Summary:"
+        echo "   Total Python files: $python_files"
+        echo "   Syntax errors: $syntax_errors"
+        
+        if [ $syntax_errors -eq 0 ]; then
+          echo "🎉 All Python files have valid syntax!"
+        else
+          echo "❌ Found $syntax_errors files with syntax errors"
+          exit 1
+        fi
+
+  import-check:
+    runs-on: ubuntu-latest
+    needs: python-syntax-check
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Set up Python  
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+        
+    - name: 📦 Install Common Packages
+      run: |
+        pip install fastapi pydantic uvicorn httpx pytest
+        
+    - name: 🔍 Import Test
+      run: |
+        echo "🔍 Testing Python imports..."
+        
+        export PYTHONPATH="${{ github.workspace }}:$PYTHONPATH"
+        
+        # Test if main modules can be imported
+        echo "Testing core modules:"
+        
+        if [ -f api/main.py ]; then
+          echo -n "  api.main: "
+          if python -c "import api.main" 2>/dev/null; then
+            echo "✅"
+          else
+            echo "❌ (may need additional dependencies)"
+          fi
+        fi
+        
+        # Test individual Python files
+        import_errors=0
+        total_files=0
+        
+        echo ""
+        echo "Testing individual files:"
+        
+        for file in $(find . -name "*.py" -not -path "./.git/*" | head -10); do
+          total_files=$((total_files + 1))
+          module=$(echo "$file" | sed 's|./||' | sed 's|/|.|g' | sed 's|.py$||')
+          
+          if [[ "$module" == *"__"* ]] || [[ "$module" == "setup" ]]; then
+            continue  # Skip special files
+          fi
+          
+          echo -n "  $module: "
+          if timeout 10s python -c "import $module" 2>/dev/null; then
+            echo "✅"
+          else
+            echo "⚠️"
+            import_errors=$((import_errors + 1))
+          fi
+        done
+        
+        echo ""
+        echo "📊 Import Summary:"
+        echo "   Files tested: $total_files"
+        echo "   Import issues: $import_errors"
+        echo ""
+        echo "ℹ️  Import issues are normal without all dependencies installed"

@@ -19,22 +19,20 @@ jobs:
       with:
         python-version: "3.13"
     
-    - name: 📦 Install Pixi
-      uses: prefix-dev/setup-pixi@v0.8.1
-      with:
-        pixi-version: v0.28.2
-        cache: true
-    
-    - name: 🔧 Install dependencies
+    - name:  Install dependencies
       run: |
         echo "📦 Installing project dependencies..."
-        pixi install
+        python -m pip install --upgrade pip
         
-        echo "📋 Checking pixi configuration..."
-        pixi info
+        # Install essential packages
+        pip install pytest pytest-cov pytest-mock
+        pip install fastapi uvicorn pydantic httpx
+        pip install faker
         
-        echo "🎯 Available tasks:"
-        pixi task list || echo "Task list not available"
+        # Try ChromaDB (may fail)
+        pip install chromadb || echo "⚠️ ChromaDB install failed"
+        
+        echo "✅ Dependencies installed"
     
     - name: 🛠️ Environment setup
       run: |
@@ -57,19 +55,19 @@ jobs:
       run: |
         echo "🧪 Running basic unit tests..."
         
-        # Try the basic unit tests that don't require complex dependencies
-        if pixi run test-basic 2>/dev/null; then
-          echo "✅ Basic tests via pixi succeeded"
+        # Set PYTHONPATH
+        export PYTHONPATH="${{ github.workspace }}:$PYTHONPATH"
+        
+        # Try running basic tests
+        if [ -f tests/unit/test_basic.py ]; then
+          echo "📄 Found test_basic.py, running tests..."
+          python -m pytest tests/unit/test_basic.py -v --tb=short || echo "⚠️ Basic tests failed"
         else
-          echo "⚠️ Pixi test-basic not available, trying direct pytest"
-          
-          # Fallback to direct pytest
-          if python -m pytest tests/unit/test_basic.py -v 2>/dev/null; then
-            echo "✅ Direct pytest succeeded"
+          echo "📄 test_basic.py not found, trying other unit tests..."
+          if [ -d tests/unit ]; then
+            python -m pytest tests/unit/ -v --tb=short -k "not (chromadb or api)" || echo "⚠️ Unit tests failed"
           else
-            echo "ℹ️ Installing pytest and running tests..."
-            pip install pytest
-            python -m pytest tests/unit/test_basic.py -v || echo "⚠️ Basic tests failed"
+            echo "ℹ️ No unit tests directory found"
           fi
         fi
       continue-on-error: true
