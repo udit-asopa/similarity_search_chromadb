@@ -1,0 +1,13 @@
+[workspace]
+authors = ["udit-asopa <udit.asopa@gmail.com>"]
+channels = ["conda-forge"]
+name = "sim_search_chromadb"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+chromadb = "*"
+sentence-transformers = "*"
+pyarrow = ">=14.0.0"
